@@ -1,11 +1,16 @@
 #include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
-#include "GL_Bindings/glfw-3.3.8/include/GLFW/glfw3.h"
-#include "GL_Bindings/glad/include/glad/glad.h"
+#include "glad.h"
+#define GLFW_INCLUDE_NONE
+#include "glfw3.h"
 
-int main(void)
-{
+int main() {
 
-    return 1;
+    if (glfwInit()) {
+        printf("Init: Success");
+    } else {
+        printf("Init: Fail");
+    }
+
+    glfwTerminate();
 }
+
