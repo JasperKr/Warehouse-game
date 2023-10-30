@@ -1,1 +1,0 @@
-Open the vcxproj file in WarehouseC NOT THE SOLUTION FILE
