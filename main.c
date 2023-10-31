@@ -59,84 +59,14 @@ int main() {
     unsigned int EBO;
     glGenBuffers(1, &EBO);
 
-    // Vertex shader source and compilation
-    // const char *vertexShaderSource =    
-    // "#version 330 core\n"
-    // "layout (location = 0) in vec3 aPos;\n"
-    // "out vec4 vertexColor;\n"
-    // "void main()\n"
-    // "{\n"
-    // "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    // "vertexColor = vec4(0.5, 0.5, 0.0, 1.0);\n"
-    // "}\0";
-
-    /*
-    FILE * fptr = fopen("..\\shader.vert", "rb");
-    fseek(fptr, 0L, SEEK_END);
-    long fileSize = ftell(fptr);
-    fseek(fptr, 0L, SEEK_SET);
-    char* vertexShaderSource = calloc(sizeof(char), fileSize + 1);
-    fread(vertexShaderSource, 1, fileSize, fptr);
-    printf("File contents:\n%s\n\n", vertexShaderSource);
-    fclose(fptr);
-
-    unsigned int vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    
-    glShaderSource(vertexShader, 1, (const char**)&vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    */
 
     unsigned int vertexShader = shader_newShader("..\\shader.vert", GL_VERTEX_SHADER);
-
-    int succes;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &succes);
-    if (!succes)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n%s", infoLog);
-    }
-
-    // Fragment shader source and compilation
-    
-    // const char *fragmentShaderSource =
-    // "#version 330 core\n"
-    // "out vec4 FragColor;\n"
-    // "in vec4 vertexColor;\n"
-    // "uniform vec4 ourColor;\n"
-    // "void main()\n"
-    // "{\n"
-    // "FragColor = ourColor;\n"
-    // "}\0";
-    // unsigned int fragmentShader;
-
-    // fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    // glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    // glCompileShader(fragmentShader);
-    
     unsigned int fragmentShader = shader_newShader("..\\shader.frag", GL_FRAGMENT_SHADER);
 
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &succes);
-    if (!succes) {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n%s", infoLog);
-    }
-
-    // Shader program
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-
+    unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
-
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &succes);
-    if (!succes) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        printf("ERROR::SHADER::PROGRAM::LINKING_FAILED\n%s", infoLog);
-    }
 
     // Shader cleanup
     glDeleteShader(vertexShader);

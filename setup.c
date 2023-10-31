@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <glad.h>
+#include <errno.h>
+#include <glfw3.h>
 
 unsigned int shader_newShader(const char* filepath, int shaderType)
 {
@@ -28,10 +30,20 @@ unsigned int shader_newShader(const char* filepath, int shaderType)
     glShaderSource(newShader, 1, (const char**)&newShaderSource, NULL);
     glCompileShader(newShader);
 
+    // Error log
+    int succes;
+    char infoLog[512];
+    glGetShaderiv(newShader, GL_COMPILE_STATUS, &succes);
+    if (!succes)
+    {
+        glGetShaderInfoLog(newShader, 512, NULL, infoLog);
+        printf("ERROR::SHADER::COMPILATION_FAILED -- In file: \"%s\"\n%s\n", filepath, infoLog);
+        exit(-1);
+    }
+
     // Final cleanup
     fclose(fptr);
     free(newShaderSource);
     
-
     return newShader;
 }
