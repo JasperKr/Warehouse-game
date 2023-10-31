@@ -7,4 +7,4 @@ find_library(GLFW_PATH glfw3 "deps/libs")
 link_libraries("${GLFW_PATH}")
 
 add_executable(Warehouse main.c)
-target_sources(Warehouse PUBLIC main.c PUBLIC glad.c)
+target_sources(Warehouse PUBLIC main.c PUBLIC glad.c PUBLIC setup.c)

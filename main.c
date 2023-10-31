@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <glad.h>
@@ -5,21 +6,13 @@
 #include <glfw3.h>
 #include "main.h"
 #include <malloc.h>
-
-char *readFile(char* file[]) {
-
-}
+#include <math.h>
+#include <setup.h>
 
 int main() {
 
     // Initialize GLFW
-    if (glfwInit()) 
-    {
-        printf("GLFW Init: Success\n");
-    } else
-    {
-        printf("GLFW Init: Fail\n");
-    }
+    if (!glfwInit()) printf("GLFW_INIT::FAIL");
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -31,9 +24,6 @@ int main() {
         printf("Window: Failed to create window\n");
         glfwTerminate();
         return -1;
-    } else
-    {
-        printf("Window: Creation successful\n");
     }
     glfwMakeContextCurrent(window);
 
@@ -41,15 +31,13 @@ int main() {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         printf("GLAD init: Fail\n");
-    } else
-    {
-        printf("GLAD init: Success\n");
     }
 
     // Set viewport and sets callback for resizing the window
     glViewport(0, 0, 800, 600);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    // Vertices and stuff
     float vertices[] = {
          0.5f,  0.5f,  0.0f,
          0.5f, -0.5f,  0.0f,
@@ -72,22 +60,34 @@ int main() {
     glGenBuffers(1, &EBO);
 
     // Vertex shader source and compilation
-    const char *vertexShaderSource =    
-    "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "out vec4 vertexColor;\n"
-    "void main()\n"
-    "{\n"
-    "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "vertexColor = vec4(0.5, 0.5, 0.0, 1.0);\n"
-    "}\0";
+    // const char *vertexShaderSource =    
+    // "#version 330 core\n"
+    // "layout (location = 0) in vec3 aPos;\n"
+    // "out vec4 vertexColor;\n"
+    // "void main()\n"
+    // "{\n"
+    // "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    // "vertexColor = vec4(0.5, 0.5, 0.0, 1.0);\n"
+    // "}\0";
 
+    /*
+    FILE * fptr = fopen("..\\shader.vert", "rb");
+    fseek(fptr, 0L, SEEK_END);
+    long fileSize = ftell(fptr);
+    fseek(fptr, 0L, SEEK_SET);
+    char* vertexShaderSource = calloc(sizeof(char), fileSize + 1);
+    fread(vertexShaderSource, 1, fileSize, fptr);
+    printf("File contents:\n%s\n\n", vertexShaderSource);
+    fclose(fptr);
 
     unsigned int vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glShaderSource(vertexShader, 1, (const char**)&vertexShaderSource, NULL);
     glCompileShader(vertexShader);
+    */
+
+    unsigned int vertexShader = shader_newShader("..\\shader.vert", GL_VERTEX_SHADER);
 
     int succes;
     char infoLog[512];
@@ -99,21 +99,26 @@ int main() {
     }
 
     // Fragment shader source and compilation
-    const char *fragmentShaderSource =
-    "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "in vec4 vertexColor;\n"
-    "void main()\n"
-    "{\n"
-    "FragColor = vertexColor;\n"
-    "}\0";
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    
+    // const char *fragmentShaderSource =
+    // "#version 330 core\n"
+    // "out vec4 FragColor;\n"
+    // "in vec4 vertexColor;\n"
+    // "uniform vec4 ourColor;\n"
+    // "void main()\n"
+    // "{\n"
+    // "FragColor = ourColor;\n"
+    // "}\0";
+    // unsigned int fragmentShader;
 
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
+    // fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &succes);
+    // glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    // glCompileShader(fragmentShader);
+    
+    unsigned int fragmentShader = shader_newShader("..\\shader.frag", GL_FRAGMENT_SHADER);
+
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &succes);
     if (!succes) {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
         printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n%s", infoLog);
@@ -157,10 +162,16 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        float timeValue = glfwGetTime();
+        float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+
         // Set the shaderprogram
         glUseProgram(shaderProgram);
+        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        
 
         glfwPollEvents();
         glfwSwapBuffers(window);
